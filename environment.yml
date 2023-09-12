@@ -1,0 +1,16 @@
+name: opencv
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - ipykernel=6.25.2=pyh2140261_0
+  - matplotlib=3.7.2=py311h38be061_0
+  - opencv=4.8.0=py311h38be061_1
+  - pip=23.2.1=pyhd8ed1ab_0
+  - py-opencv=4.8.0=py311h781c19f_1
+  - python=3.11.5=hab00c5b_0_cpython
+  - pip:
+      - largestinteriorrectangle==0.2.0
+      - numpy==1.24.4
+      - timeout-decorator==0.5.0
