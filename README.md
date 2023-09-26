@@ -1,8 +1,11 @@
 # Autocrop
-A opencv based python script that used to crop out the 96-well colonies on a big agar plate.
+
+A opencv based python script that used to crop out the 96-well colonies on a petri dish.
 
 ## Usage
-Use `python autocrop.py --help` to see more details.
+
+Use `python AUTOCROP --help` to see more details.
+
 ```
 positional arguments:
   image                 Image that contains colony plates.
@@ -11,53 +14,102 @@ options:
   -h, --help            show this help message and exit
   -o OUTDIR, --outdir OUTDIR
                         Output directory.
-  -H, --high            Use parameters for high growth plate
+  -n N_PLATES, --n_plates N_PLATES
+                        Number of plates on the petri dish. (Default=3)
+  -p {H,M,L}, --param {H,M,L}
+                        Force to use parameters for high/medium/low growing plate.
   -q, --quiet           Quiet mode to suppress msg.
   -v, --verbose         Verbose mode for debug.
 ```
 
 Let's process the image stored in `original_images/3_1_30.jpg` and output to `cropped_images`.
+
 ```
-python autocrop.py original_images/3_1_30.jpg -o cropped_images
+python AUTOCROP original_images/3_1_30.jpg -o cropped_images
 ```
-The default parameters is mainly for low/medium groth rate plates.
-Processing high growth rate plates with default parameters sometimes will encounter errors.
+
+By default, AUTOCROP will automatically find a proper parameters for high/medium/low growing plates.
+This image was detected to be a medium growing plate.
+
 ```
-python autocrop.py original_images/10_1_30C.jpg -o cropped_images
+2023-09-26 14:59:03,719 autocrop INFO [3_1_30.jpg] Start processing original_images/3_1_30.jpg
+2023-09-26 14:59:05,401 autocrop INFO [3_1_30.jpg] Use "M" parameter set
+2023-09-26 14:59:05,517 autocrop INFO [3_1_30.jpg] Write adjusted image to output/3_1_30.jpg
+2023-09-26 14:59:06,028 autocrop INFO [3_1_30.jpg] Write plate1 image to output/3_1_30_1.jpg
+2023-09-26 14:59:06,045 autocrop INFO [3_1_30.jpg] Write plate2 image to output/3_1_30_2.jpg
+2023-09-26 14:59:06,061 autocrop INFO [3_1_30.jpg] Write plate3 image to output/3_1_30_3.jpg
+2023-09-26 14:59:06,064 autocrop INFO [3_1_30.jpg] Write marker image to output/3_1_30_M.jpg
 ```
+
+However, the parameter auto-detection sometime will failed.
+
 ```
-2023-09-11 15:51:36,025 autocrop INFO [10_1_30C.jpg] Start processing original_images/10_1_30C.jpg
-2023-09-11 15:51:40,858 autocrop INFO [10_1_30C.jpg] Got image that contains markers only.
-2023-09-11 15:51:40,863 autocrop INFO [10_1_30C.jpg] Write marker image to cropped_images/10_1_30C_M.jpg
-2023-09-11 15:51:40,863 autocrop INFO [10_1_30C.jpg] Looking for plates in the container image
-2023-09-11 15:51:43,974 autocrop INFO [10_1_30C.jpg] Finding for plate that the ratio falls between 0.1-0.2 ...
-2023-09-11 15:51:43,974 autocrop WARNING [10_1_30C.jpg] Cannot found any contour which area falls between 0.1-0.2.
-2023-09-11 15:51:43,974 autocrop INFO [10_1_30C.jpg] Remove already generated files.
+python AUTOCROP original_images/7_2_low_N.jpg -o cropped_images
 ```
-If the run fail to crop out any plate image, the already cropped markers image will also be removed.
-In this case, you can try swtiching on the option `-H` to use parameters for high growth rate plate.
+
 ```
-python autocrop.py original_images/10_1_30C.jpg -o cropped_images -H
+2023-09-26 15:00:49,116 autocrop INFO [7_2_low_N.jpg] Start processing original_images/7_2_low_N.jpg
+2023-09-26 15:00:51,092 autocrop INFO [7_2_low_N.jpg] Use "H" parameter set
+2023-09-26 15:00:51,207 autocrop INFO [7_2_low_N.jpg] Write adjusted image to output/7_2_low_N.jpg
+2023-09-26 15:00:51,285 autocrop WARNING [7_2_low_N.jpg] Cannot found proper dilation parameter. Aborted.
+```
+
+In this case, you can force to use a particular parameter set by specifying `-p [H/M/L]`. E.g.
+
+```
+python AUTOCROP original_images/7_2_low_N.jpg -o cropped_images -p M
+```
+
+Sometimes the issue would be resolved.
+
+```
+2023-09-26 15:01:46,532 autocrop INFO [7_2_low_N.jpg] Start processing original_images/7_2_low_N.jpg
+2023-09-26 15:01:48,468 autocrop INFO [7_2_low_N.jpg] Use "M" parameter set
+2023-09-26 15:01:48,583 autocrop INFO [7_2_low_N.jpg] Write adjusted image to output/7_2_low_N.jpg
+2023-09-26 15:01:48,941 autocrop INFO [7_2_low_N.jpg] Write plate1 image to output/7_2_low_N_1.jpg
+2023-09-26 15:01:48,956 autocrop INFO [7_2_low_N.jpg] Write plate2 image to output/7_2_low_N_2.jpg
+2023-09-26 15:01:48,970 autocrop INFO [7_2_low_N.jpg] Write plate3 image to output/7_2_low_N_3.jpg
+2023-09-26 15:01:48,977 autocrop INFO [7_2_low_N.jpg] Write marker image to output/7_2_low_N_M.jpg
 ```
 
 ### Process the entire folder
+
 You can simply use the bash for loop to process the all the images contains in a folder.
+
 ```
-for file in original_images/*; do python autocrop.py $i -o cropped_images; done
+for file in original_images/*; do python AUTOCROP $i -o cropped_images; done
 ```
-Since the default parameters are not going to work well in some of the high growth rate plates,
+
+Since the parameter auto-detection doesn't work well on some of the plates,
 the below is the recommended processing step:
-1. First run the for loop with the default parameters.
+
+1. Since most of the plates are considered to be medium growing plate. We first run the for loop with the `-m M` option.
 2. Manually check the images that are failed and delete them.
-3. Run the for loop again with the `-H` option.
+3. Run the for loop again with the `-m L` option. Delete the failed images.
+4. Run the for loop again with the `-m H` option. Delete the failed images.
+5. Manually crop image by [GIMP](https://www.gimp.org/)
+
+### Try out on the notebook
+
+A jupyter notebook `test.ipynb` was also uploaded to the repo. You can try to fine-tune the program by yourself.
+Please keep the lines importing the library to make it works. Especially the line which import the autocrop functions.
+
+```
+import matplotlib.pyplot as plt
+from types import SimpleNamespace
+
+from autocrop.autocrop import *
+```
 
 ## Requirements
+
 - Python >= 3.7
 - opencv >= 4.8.0
 - largestinteriorrectangle >= 0.2.0
 - timeout-decorator >= 0.5.0
 
 Use the environment.yml to install all the required packages:
+
 ```
 conda env create -f environment.yml
 ```

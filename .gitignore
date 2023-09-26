@@ -161,3 +161,4 @@ cython_debug/
 
 original_images/*
 cropped_images/*
+*.ipynb
