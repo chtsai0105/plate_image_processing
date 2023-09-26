@@ -54,7 +54,7 @@ python AUTOCROP original_images/7_2_low_N.jpg -o cropped_images
 2023-09-26 15:00:51,285 autocrop WARNING [7_2_low_N.jpg] Cannot found proper dilation parameter. Aborted.
 ```
 
-In this case, you can force to use a particular parameter set by specifying `-p [H/M/L]`. E.g.
+In this case, you can force to use a particular parameter set by specifying `--param/-p [H/M/L]`. E.g.
 
 ```
 python AUTOCROP original_images/7_2_low_N.jpg -o cropped_images -p M
@@ -70,6 +70,14 @@ Sometimes the issue would be resolved.
 2023-09-26 15:01:48,956 autocrop INFO [7_2_low_N.jpg] Write plate2 image to output/7_2_low_N_2.jpg
 2023-09-26 15:01:48,970 autocrop INFO [7_2_low_N.jpg] Write plate3 image to output/7_2_low_N_3.jpg
 2023-09-26 15:01:48,977 autocrop INFO [7_2_low_N.jpg] Write marker image to output/7_2_low_N_M.jpg
+```
+
+#### Experimental feature
+Now you can adjust the `-n/--n_plates` if the petri dish is expected to contain more than 3 plates.
+E.g. 4 plates are expected to be found on the petri dish:
+
+```
+python AUTOCROP original_images/7_2_low_N.jpg -o cropped_images -n 4
 ```
 
 ### Process the entire folder
@@ -92,7 +100,7 @@ the below is the recommended processing step:
 ### Try out on the notebook
 
 A jupyter notebook `test.ipynb` was also uploaded to the repo. You can try to fine-tune the program by yourself.
-Please keep the lines importing the library to make it works. Especially the line which import the autocrop functions.
+Please keep the lines importing the library to make it works. Especially the line which imports the autocrop functions.
 
 ```
 import matplotlib.pyplot as plt
